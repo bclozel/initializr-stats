@@ -1,25 +1,27 @@
 package io.spring.sample.dashboard.stats;
 
 import io.spring.sample.dashboard.stats.support.ReverseLookupDescriptor;
+import reactor.core.publisher.Mono;
 
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class ReverseLookupClient {
 
-	private final RestTemplate client;
+	private final WebClient client;
 
-	public ReverseLookupClient(RestTemplateBuilder builder) {
+	public ReverseLookupClient(WebClient.Builder builder) {
 		this.client = builder.build();
 	}
 
-	public ReverseLookupDescriptor freeReverseLookup(String ip) {
-		return this.client.getForObject("http://localhost:8081/reverse-lookup/free/{ip}", ReverseLookupDescriptor.class, ip);
+	public Mono<ReverseLookupDescriptor> freeReverseLookup(String ip) {
+		return this.client.get().uri("http://localhost:8081/reverse-lookup/free/{ip}", ip)
+				.retrieve().bodyToMono(ReverseLookupDescriptor.class);
 	}
 
-	public ReverseLookupDescriptor payingReverseLookup(String ip) {
-		return this.client.getForObject("http://localhost:8081/reverse-lookup/costly/{ip}", ReverseLookupDescriptor.class, ip);
+	public Mono<ReverseLookupDescriptor> payingReverseLookup(String ip) {
+		return this.client.get().uri("http://localhost:8081/reverse-lookup/costly/{ip}", ip)
+				.retrieve().bodyToMono(ReverseLookupDescriptor.class);
 	}
 }

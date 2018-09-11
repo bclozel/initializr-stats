@@ -26,16 +26,16 @@ public class StatsService {
 
 		StatsContainer.Builder builder = StatsContainer.range(fromDate, toDate);
 
-		GenerationStatistics generationStats = statsClient.fetchGenerationStats(fromDate, toDate);
+		GenerationStatistics generationStats = statsClient.fetchGenerationStats(fromDate, toDate).block();
 		builder.addSeries(generationStats.getRecords());
 
-		List<Event> events = statsClient.fetchEvents(fromDate, toDate);
+		List<Event> events = statsClient.fetchEvents(fromDate, toDate).collectList().block();
 		builder.addAnnotations(events);
 
-		List<GeneratorClient> clients = statsClient.fetchGeneratorClients(fromDate, toDate);
+		List<GeneratorClient> clients = statsClient.fetchGeneratorClients(fromDate, toDate).collectList().block();
 		List<ReverseLookupDescriptor> resolvedIps = clients
 				.parallelStream()
-				.map(client -> lookupClient.freeReverseLookup(client.getIp()))
+				.map(client -> lookupClient.freeReverseLookup(client.getIp()).block())
 				.collect(Collectors.toList());
 		builder.addTopClients(resolvedIps);
 
