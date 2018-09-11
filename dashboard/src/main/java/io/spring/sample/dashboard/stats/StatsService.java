@@ -1,12 +1,12 @@
 package io.spring.sample.dashboard.stats;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.spring.sample.dashboard.stats.support.Event;
 import io.spring.sample.dashboard.stats.support.GenerationStatistics;
-import io.spring.sample.dashboard.stats.support.GeneratorClient;
 import io.spring.sample.dashboard.stats.support.ReverseLookupDescriptor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import org.springframework.stereotype.Service;
 
@@ -22,24 +22,25 @@ public class StatsService {
 		this.lookupClient = lookupClient;
 	}
 
-	public StatsContainer fetchStats(String fromDate, String toDate) {
+	public Mono<StatsContainer> fetchStats(String fromDate, String toDate) {
 
-		StatsContainer.Builder builder = StatsContainer.range(fromDate, toDate);
+		Mono<GenerationStatistics> generationStats = statsClient.fetchGenerationStats(fromDate, toDate);
+		Mono<List<Event>> events = statsClient.fetchEvents(fromDate, toDate).collectList();
+		Mono<List<ReverseLookupDescriptor>> topClients = fetchTopClients(fromDate, toDate).collectList();
 
-		GenerationStatistics generationStats = statsClient.fetchGenerationStats(fromDate, toDate).block();
-		builder.addSeries(generationStats.getRecords());
+		return Mono.zip(generationStats, events, topClients).map(tuple -> {
+			StatsContainer.Builder builder = StatsContainer.range(fromDate, toDate);
+			builder.addSeries(tuple.getT1().getRecords());
+			builder.addAnnotations(tuple.getT2());
+			builder.addTopClients(tuple.getT3());
+			return builder.build();
+		});
+	}
 
-		List<Event> events = statsClient.fetchEvents(fromDate, toDate).collectList().block();
-		builder.addAnnotations(events);
+	Flux<ReverseLookupDescriptor> fetchTopClients(String fromDate, String toDate) {
 
-		List<GeneratorClient> clients = statsClient.fetchGeneratorClients(fromDate, toDate).collectList().block();
-		List<ReverseLookupDescriptor> resolvedIps = clients
-				.parallelStream()
-				.map(client -> lookupClient.freeReverseLookup(client.getIp()).block())
-				.collect(Collectors.toList());
-		builder.addTopClients(resolvedIps);
-
-		return builder.build();
+		return statsClient.fetchGeneratorClients(fromDate, toDate)
+				.flatMap(client -> lookupClient.freeReverseLookup(client.getIp()));
 	}
 
 }
