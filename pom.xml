@@ -12,6 +12,7 @@
 	<description>Initializr Statistics</description>
 
 	<modules>
+		<module>dashboard</module>
 		<module>generator</module>
 	</modules>
 
