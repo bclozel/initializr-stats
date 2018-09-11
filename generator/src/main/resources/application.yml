@@ -1,0 +1,128 @@
+initializr:
+  stats:
+    generator:
+      datasets:
+        - range:
+            from: 2014-01-01
+            to: 2017-12-31
+          data:
+            monday: 2000
+            tuesday: 3000
+            wednesday: 3000
+            thursday: 4000
+            friday: 1500
+            saturday: 700
+            sunday: 300
+        - range:
+            from: 2018-01-01
+            to: 2018-03-31
+          data:
+            monday: 15000
+            tuesday: 17000
+            wednesday: 17000
+            thursday: 22000
+            friday: 15000
+            saturday: 9000
+            sunday: 7000
+        - range:
+            from: 2018-04-01
+            to: 2018-06-30
+          data:
+            monday: 35000
+            tuesday: 37000
+            wednesday: 37000
+            thursday: 42000
+            friday: 35000
+            saturday: 17000
+            sunday: 15000
+        - range:
+            from: 2018-07-01
+            to: 2018-09-30
+          data:
+            monday: 37000
+            tuesday: 39000
+            wednesday: 39000
+            thursday: 42000
+            friday: 37000
+            saturday: 18000
+            sunday: 16000
+      releases:
+          - range:
+              from: 2018-01-01
+              to: 2018-02-28
+            data:
+              maintenance: 1.4.x
+              current: 1.5.x
+              next: 2.0.x
+          - range:
+              from: 2018-03-01
+              to: 2018-05-08
+            data:
+              maintenance: 1.5.x
+              current: 2.0.x
+          - range:
+              from: 2018-05-09
+              to: 2018-10-01
+            data:
+              maintenance: 1.5.x
+              current: 2.0.x
+              next: 2.1.x
+      events:
+        - name: "Spring Boot 2.0.0.RELEASE"
+          date: 2018-03-01
+          type: release
+        - name: "Spring Boot 2.0.1.RELEASE"
+          date: 2018-04-05
+          type: release
+        - name: "Spring Boot 1.5.12.RELEASE"
+          date: 2018-04-10
+          type: release
+        - name: "Spring Boot 1.5.13.RELEASE"
+          date: 2018-05-09
+          type: release
+        - name: "Spring Boot 2.0.2.RELEASE"
+          date: 2018-05-09
+          type: release
+        - name: "Spring Boot 1.5.14.RELEASE"
+          date: 2018-06-14
+          type: release
+        - name: "Spring Boot 2.0.3.RELEASE"
+          date: 2018-06-14
+          type: release
+        - name: "Spring Boot 1.5.15.RELEASE"
+          date: 2018-07-31
+          type: release
+        - name: "Spring Boot 2.0.4.RELEASE"
+          date: 2018-07-31
+          type: release
+        - name: "Spring Boot 2.1.0.M1"
+          date: 2018-07-31
+          type: release
+        - name: "Spring Boot 2.1.0.M2"
+          date: 2018-08-21
+          type: release
+        - name: "Slack Down"
+          date: 2018-09-13
+          type: tools_outage
+        - name: "Twitter Down"
+          date: 2018-09-19
+          type: social_outage
+        - name: "SpringOne Platform"
+          date: 2018-09-25
+          type: conference
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: initializr-stats-generator
+
+server:
+  port: 8081
+
+spring:
+  mvc:
+    date-format: yyyy-MM-dd
