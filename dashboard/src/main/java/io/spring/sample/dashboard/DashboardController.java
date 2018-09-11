@@ -3,8 +3,11 @@ package io.spring.sample.dashboard;
 import java.time.LocalDate;
 
 import io.spring.sample.dashboard.stats.StatsService;
+import io.spring.sample.dashboard.stats.support.GenerationStatisticsItem;
+import reactor.core.publisher.Flux;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +42,11 @@ public class DashboardController {
 		model.addAttribute("toDate", toDate);
 		model.addAttribute("stats", statsService.fetchStats(fromDate.toString(), toDate.toString()).block());
 		return "index";
+	}
+
+	@GetMapping(path = "/live/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<GenerationStatisticsItem> liveStats() {
+		return this.statsService.fetchLiveStats();
 	}
 
 }

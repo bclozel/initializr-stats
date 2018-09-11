@@ -2,6 +2,7 @@ package io.spring.sample.dashboard.stats;
 
 import io.spring.sample.dashboard.stats.support.Event;
 import io.spring.sample.dashboard.stats.support.GenerationStatistics;
+import io.spring.sample.dashboard.stats.support.GenerationStatisticsItem;
 import io.spring.sample.dashboard.stats.support.GeneratorClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,6 +32,11 @@ public class StatsClient {
 	public Flux<GeneratorClient> fetchGeneratorClients(String fromDate, String toDate) {
 		return this.client.get().uri("/top-ips/{from}/{to}", fromDate, toDate)
 				.retrieve().bodyToFlux(GeneratorClient.class);
+	}
+
+	public Flux<GenerationStatisticsItem> liveStats() {
+		return this.client.get().uri("/live-statistics")
+				.retrieve().bodyToFlux(GenerationStatisticsItem.class);
 	}
 
 }

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Initializr Dashboard</title>
+
+    <link data-th-href="@{/webjars/bulma/css/bulma.css}" rel="stylesheet"/>
+    <link rel="stylesheet" data-th-href="@{/webjars/font-awesome/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" data-th-href="@{/webjars/highcharts/css/highcharts.css}"/>
+    <script type="text/javascript" data-th-src="@{/webjars/highcharts/highcharts.js}"></script>
+    <script type="text/javascript" data-th-src="@{/webjars/highcharts/modules/annotations.js}"></script>
+</head>
+<body>
+<section class="hero is-primary is-bold">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                <i class="fa fa-area-chart" aria-hidden="true"></i>&nbsp;Initializr Dashboard
+            </h1>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="container">
+            <div id="chart" style="height: 400px; min-width: 310px"></div>
+        </div>
+    </div>
+</section>
+<script data-th-inline="javascript">
+    var chart = Highcharts.chart('chart', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Live project generation'
+        },
+        xAxis: {
+            type: 'datetime',
+            labels: {
+                rotation: -45,
+                style: {
+                    fontSize: '13px',
+                    fontFamily: 'Verdana, sans-serif'
+                }
+            }
+        },
+        yAxis: {
+            min: 0,
+            allowDecimals: false,
+            title: {
+                text: 'Project count'
+            }
+        },
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        },
+        plotOptions: {
+            series: {
+                animation:{
+                    duration:250
+                },
+                pointPadding: 0,
+                groupPadding: 0,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'projects',
+            data: []
+
+        }]
+    });
+    var appendGenerationData = function (sample) {
+        chart.series
+            .filter(function (serie) {
+                return serie.name == 'projects'
+            })
+            .forEach(function (serie) {
+                var shift = serie.data.length > 40;
+                serie.addPoint([Date.parse(sample.range.from), sample.projectsCount], true, shift);
+            });
+    };
+    var projectGenerationEventSource = new EventSource(/*[[@{|/live/stream|}]]*/ "/live");
+    projectGenerationEventSource.onmessage = function (e) {
+        appendGenerationData(JSON.parse(e.data));
+    };
+</script>
+
+</body>
+</html>

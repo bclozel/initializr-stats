@@ -6,6 +6,7 @@ import java.util.List;
 import io.spring.sample.dashboard.DashboardProperties;
 import io.spring.sample.dashboard.stats.support.Event;
 import io.spring.sample.dashboard.stats.support.GenerationStatistics;
+import io.spring.sample.dashboard.stats.support.GenerationStatisticsItem;
 import io.spring.sample.dashboard.stats.support.ReverseLookupDescriptor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,6 +20,8 @@ public class StatsService {
 
 	private final ReverseLookupClient lookupClient;
 
+	private final Flux<GenerationStatisticsItem> liveStats;
+
 	private Duration timeout;
 
 	public StatsService(StatsClient statsClient, ReverseLookupClient lookupClient,
@@ -26,7 +29,7 @@ public class StatsService {
 		this.statsClient = statsClient;
 		this.lookupClient = lookupClient;
 		this.timeout = properties.getReverseLookup().getTimeout();
-
+		this.liveStats = statsClient.liveStats().share().cache(20);
 	}
 
 	public Mono<StatsContainer> fetchStats(String fromDate, String toDate) {
@@ -53,4 +56,9 @@ public class StatsService {
 				);
 	}
 
+	public Flux<GenerationStatisticsItem> fetchLiveStats() {
+		return this.liveStats;
+	}
+
 }
+
