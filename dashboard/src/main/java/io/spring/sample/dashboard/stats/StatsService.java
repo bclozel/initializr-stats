@@ -1,7 +1,9 @@
 package io.spring.sample.dashboard.stats;
 
+import java.time.Duration;
 import java.util.List;
 
+import io.spring.sample.dashboard.DashboardProperties;
 import io.spring.sample.dashboard.stats.support.Event;
 import io.spring.sample.dashboard.stats.support.GenerationStatistics;
 import io.spring.sample.dashboard.stats.support.ReverseLookupDescriptor;
@@ -17,9 +19,14 @@ public class StatsService {
 
 	private final ReverseLookupClient lookupClient;
 
-	public StatsService(StatsClient statsClient, ReverseLookupClient lookupClient) {
+	private Duration timeout;
+
+	public StatsService(StatsClient statsClient, ReverseLookupClient lookupClient,
+			DashboardProperties properties) {
 		this.statsClient = statsClient;
 		this.lookupClient = lookupClient;
+		this.timeout = properties.getReverseLookup().getTimeout();
+
 	}
 
 	public Mono<StatsContainer> fetchStats(String fromDate, String toDate) {
@@ -40,7 +47,10 @@ public class StatsService {
 	Flux<ReverseLookupDescriptor> fetchTopClients(String fromDate, String toDate) {
 
 		return statsClient.fetchGeneratorClients(fromDate, toDate)
-				.flatMap(client -> lookupClient.freeReverseLookup(client.getIp()));
+				.flatMap(client ->
+						lookupClient.freeReverseLookup(client.getIp())
+								.timeout(this.timeout, this.lookupClient.payingReverseLookup(client.getIp()))
+				);
 	}
 
 }
