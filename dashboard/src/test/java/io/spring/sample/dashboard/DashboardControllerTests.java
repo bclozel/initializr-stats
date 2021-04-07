@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import io.spring.sample.dashboard.stats.StatsContainer;
 import io.spring.sample.dashboard.stats.StatsService;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -41,7 +42,7 @@ class DashboardControllerTests {
 	@Test
 	void showDashboardContainsStats() throws Exception {
 		StatsContainer container = StatsContainer.range("2018-01-01", "2018-01-07").build();
-		given(statsService.fetchStats("2018-01-01", "2018-01-07")).willReturn(container);
+		given(statsService.fetchStats("2018-01-01", "2018-01-07")).willReturn(Mono.just(container));
 		this.mvc.perform(get("/stats/2018-01-01/2018-01-07")).andExpect(status().is(200))
 				.andExpect(matchAll(status().isOk(),
 						model().attribute("fromDate", LocalDate.of(2018, 1, 1)),

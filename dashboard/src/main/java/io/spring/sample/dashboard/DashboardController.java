@@ -37,7 +37,7 @@ public class DashboardController {
 			Model model) {
 		model.addAttribute("fromDate", fromDate);
 		model.addAttribute("toDate", toDate);
-		model.addAttribute("stats", statsService.fetchStats(fromDate.toString(), toDate.toString()));
+		model.addAttribute("stats", statsService.fetchStats(fromDate.toString(), toDate.toString()).block());
 		return "index";
 	}
 
