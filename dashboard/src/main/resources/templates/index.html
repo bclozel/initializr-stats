@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Initializr Dashboard</title>
+
+    <link data-th-href="@{/webjars/bulma/css/bulma.css}" rel="stylesheet"/>
+    <link rel="stylesheet" data-th-href="@{/webjars/font-awesome/css/font-awesome.min.css}"/>
+    <link rel="stylesheet" data-th-href="@{/webjars/highcharts/css/highcharts.css}"/>
+    <script type="text/javascript" data-th-src="@{/webjars/highcharts/highcharts.js}"></script>
+    <script type="text/javascript" data-th-src="@{/webjars/highcharts/modules/annotations.js}"></script>
+    <link rel="stylesheet" data-th-href="@{/webjars/flatpickr/dist/flatpickr.css}"/>
+    <script type="text/javascript" data-th-src="@{/webjars/flatpickr/dist/flatpickr.js}"></script>
+</head>
+<body>
+<section class="hero is-primary is-bold">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                <i class="fa fa-area-chart" aria-hidden="true"></i>&nbsp;Initializr Dashboard
+            </h1>
+        </div>
+    </div>
+</section>
+<section class="section">
+    <form method="post" action="/">
+        <div class="field is-horizontal">
+            <div class="field-label is-normal">
+                <label class="label">Period</label>
+            </div>
+            <div class="field-body">
+                <div class="field">
+                    <p class="control">
+                        <input class="input fromdate" name="fromDate" type="text" data-th-value="${fromDate}" placeholder="From date"/>
+                    </p>
+                </div>
+                <div class="field">
+                    <p class="control">
+                        <input class="input todate" name="toDate" type="text" data-th-value="${toDate}" placeholder="To date"/>
+                    </p>
+                </div>
+                <input type="hidden" data-th-name="${_csrf.parameterName}" data-th-value="${_csrf.token}"/>
+                <div class="field">
+                <div class="control">
+                    <button class="button is-primary">Submit</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+<section class="section">
+    <div class="container">
+        <div class="container">
+            <div id="chart" style="height: 400px; min-width: 310px"></div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <h2 class="title is-3">Top HTTP clients by IP</h2>
+        <table class="table is-hoverable">
+            <thead>
+            <tr>
+                <th>IP address</th>
+                <th>Resolved Host name</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr data-th-each="client : ${stats.topClients}">
+                    <td data-th-text="${client.ip}">127.0.0.1</td>
+                    <td data-th-text="${client.hostname}">host.example.org</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+<script data-th-inline="javascript">
+    flatpickr(".fromdate", {});
+    flatpickr(".todate", {});
+    var rawStats = /*[[${stats}]]*/ {};
+    var stats = extractCreationStats(rawStats.creations);
+    var annotations = createAnnotations(rawStats.annotations);
+    
+    Highcharts.chart('chart', {
+        title: {
+            text: 'Start.spring.io project creations'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: 'Number of projects created'
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        series: stats,
+        annotations: annotations,
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    });
+
+    function extractCreationStats(creations) {
+        var stats = [];
+        for (var name in rawStats.creations) {
+            var serie = {};
+            serie.name = name;
+            serie.data = rawStats.creations[name].map(function (s) {
+                return [Date.parse(s.date), s.count];
+            })
+                .sort(function (a, b) {
+                    return a[0] - b[0];
+                });
+            stats.push(serie);
+        }
+        return stats;
+    }
+
+    function createAnnotations(ann) {
+        var annotation = {
+            labelOptions: {style: {fontSize: "14px"}},
+            labels: [],
+            shapes: []
+        };
+        ann.forEach(function(a) {
+            var date = Date.parse(a.date);
+            annotation.labels.push({
+                point: {x: date, y: 40000, xAxis: 0, yAxis: 0},
+                text: a.text
+            });
+            annotation.shapes.push({
+                type: 'path',
+                points: [{x: date, y: 0, xAxis: 0, yAxis: 0},
+                    {x: date, y: 40000, xAxis: 0, yAxis: 0}]
+            })
+        });
+        return [annotation];
+    }
+</script>
+
+</body>
+</html>

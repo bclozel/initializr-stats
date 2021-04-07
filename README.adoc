@@ -1,0 +1,2 @@
+= Initializr Stats
+See a recording of https://www.youtube.com/watch?v=LVkGL1h25DI[the talk at Spring I/O].

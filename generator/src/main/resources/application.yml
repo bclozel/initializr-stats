@@ -1,0 +1,151 @@
+initializr:
+  stats:
+    generator:
+      datasets:
+        - range:
+            from: 2014-01-01
+            to: 2018-12-31
+          data:
+            monday: 2000
+            tuesday: 3000
+            wednesday: 3000
+            thursday: 4000
+            friday: 1500
+            saturday: 700
+            sunday: 300
+        - range:
+            from: 2019-01-01
+            to: 2019-03-31
+          data:
+            monday: 15000
+            tuesday: 17000
+            wednesday: 17000
+            thursday: 22000
+            friday: 15000
+            saturday: 9000
+            sunday: 7000
+        - range:
+            from: 2019-04-01
+            to: 2019-06-30
+          data:
+            monday: 35000
+            tuesday: 37000
+            wednesday: 37000
+            thursday: 42000
+            friday: 35000
+            saturday: 17000
+            sunday: 15000
+        - range:
+            from: 2019-07-01
+            to: 2019-09-30
+          data:
+            monday: 37000
+            tuesday: 39000
+            wednesday: 39000
+            thursday: 42000
+            friday: 37000
+            saturday: 18000
+            sunday: 16000
+        - range:
+            from: 2019-10-01
+            to: 2019-12-31
+          data:
+            monday: 39000
+            tuesday: 42000
+            wednesday: 42000
+            thursday: 45000
+            friday: 39000
+            saturday: 18000
+            sunday: 16000
+        - range:
+            from: 2020-01-01
+            to: 2020-12-31
+          data:
+            monday: 40000
+            tuesday: 44000
+            wednesday: 44000
+            thursday: 47000
+            friday: 41000
+            saturday: 20000
+            sunday: 19000
+        - range:
+            from: 2021-01-01
+            to: 2021-12-31
+          data:
+            monday: 42000
+            tuesday: 45000
+            wednesday: 46000
+            thursday: 49000
+            friday: 43000
+            saturday: 22000
+            sunday: 20000
+      releases:
+          - range:
+              from: 2019-10-16
+              to: 2020-05-15
+            data:
+              maintenance: 2.1.x
+              current: 2.2.x
+              next: 2.3.x
+          - range:
+              from: 2020-05-15
+              to: 2020-10-01
+            data:
+              maintenance: 2.2.x
+              current: 2.3.x
+              next: 2.4.x
+          - range:
+              from: 2020-11-01
+              to: 2021-05-01
+            data:
+              maintenance: 2.3.x
+              current: 2.4.x
+              next: 2.5.x
+          - range:
+              from: 2021-05-01
+              to: 2021-10-01
+            data:
+              maintenance: 2.4.x
+              current: 2.5.x
+              next: 2.6.x
+      events:
+        - name: "SpringOne Platform"
+          date: 2019-10-07
+          type: conference
+        - name: "Spring Boot 2.3.0.RELEASE"
+          date: 2020-05-15
+          type: release
+        - name: "Spring Boot 2.4.0"
+          date: 2020-11-12
+          type: release
+        - name: "Spring Boot 2.4.4"
+          date: 2021-03-18
+          type: release
+        - name: "Slack Down"
+          date: 2021-04-06
+          type: tools_outage
+        - name: "SUG Italy"
+          date: 2021-04-08
+          type: conference
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: initializr-stats-generator
+
+server:
+  port: 8081
+
+spring:
+  mvc:
+    format:
+      date: yyyy-MM-dd
+
+wavefront:
+  application:
+    name: initializr-stats
+    service: generator
